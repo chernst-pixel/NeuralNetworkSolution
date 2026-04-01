@@ -29,20 +29,15 @@ namespace NeuralNet.Training
                 answer      = GetAnswer(prediction);
                 certainty   = prediction[answer];
 
-                if (data.lable[answer] == 1)
-                {
-                    correct_prediction++;
-                    this.average_certainty += certainty * 100;
-                }
-                else 
-                {
-                    false_prediction++;
-                }
+                if (data.lable[answer] == 1) correct_prediction++;
+                else                         false_prediction++;
+                
+                this.average_certainty += certainty * 100;
                 count++;
                 if (count % 100 == 0) progress.Report([count, list_length]);
             }
             
-            this.average_certainty = this.average_certainty / correct_prediction;
+            this.average_certainty = this.average_certainty / list_length;
         }
 
         private int GetAnswer(double[] prediction)
