@@ -1,5 +1,5 @@
 ﻿using NeuralNet.Core;
-using NeuralNet.Persistence;
+using NeuralNet.Core.Serialization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -60,7 +60,7 @@ namespace NeuralNet.Interface
         private void btn_send_Click(object sender, RoutedEventArgs e)
         {
             
-            double[] answer     =   network.Activation(GetImageValues());
+            double[] answer     =   network.Predict(GetImageValues());
             lbl_result.Content  =   $"0 : {answer[0]:0.00}\n" +
                                     $"1 : {answer[1]:0.00}\n" +
                                     $"2 : {answer[2]:0.00}\n" +

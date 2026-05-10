@@ -1,9 +1,8 @@
-﻿using NeuralNet.Core;
-using NeuralNet.Core.Layers;
+﻿using NeuralNet.Core.Layers;
 using NeuralNet.Core.Models;
 using System.Text.Json;
 
-namespace NeuralNet.Persistence
+namespace NeuralNet.Core.Serialization
 {
     public static class Serialization
     {

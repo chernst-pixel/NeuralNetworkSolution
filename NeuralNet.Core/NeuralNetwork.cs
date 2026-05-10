@@ -1,85 +1,87 @@
-﻿using System.Text.Json.Serialization;
+﻿using NeuralNet.Core.Layers;
+using NeuralNet.Core.Losses;
+using NeuralNet.Core.Models;
+using System.Text.Json.Serialization;
 
 namespace NeuralNet.Core
 {
 
     public class NeuralNetwork
     {
-        const int INPUTINDEX  = 0;
-        const int OUTPUTINDEX = 1;
-        double[]  forward_input, outputs;
-        public Layer[] layers { get; set; }
-        public NeuralNetwork(int[][] layer_structure)
+        double  learningRate = 0.01;
+        public List<ILayer> layers  { get; set; } 
+        public ILoss        loss    { get; set; }
+        public NeuralNetwork()
         {
-            layers = new Layer[layer_structure.Length];
-            for (int layer = 0; layer < layer_structure.Length; layer++)
-            {
-                layers[layer] = new Layer(layer_structure[layer][INPUTINDEX], layer_structure[layer][OUTPUTINDEX]);
-            }
+            layers = new();
+            layers.Add(new DenseLayer(28*28, 128));
+            layers.Add(new ReLULayer());
+            layers.Add(new DenseLayer(128, 10));
+            
+            this.loss = new SoftmaxCrossEntropyLoss();
         }
 
         [JsonConstructor]
-        public NeuralNetwork(Layer[] layers)
+        public NeuralNetwork(List<ILayer> layers, ILoss loss)
         {
-            this.layers = layers;
+            this.layers         = layers;
+            this.loss           = loss;
         }
 
-        public double[] Activation(double[] forward_input)
+        public double[] Forward(object input)
         {
-            this.forward_input = forward_input;
-            for (int layer = 0; layer < layers.Length; layer++)
+            object activation = input;
+
+            foreach (ILayer layer in layers)
             {
-                this.outputs = this.layers[layer].Forward(this.forward_input, IsOutputLayer(layer));
-                this.forward_input       = this.outputs;
+                activation  = layer.Forward(activation);
             }
-            return this.outputs;
+
+            return (double[])activation;
         }
 
-        public double[] TrainSample(double[] input, double[] target)
+        public double TrainSample(double[] input, double[] target)
         {
-            this.outputs = Activation(input);
-            Backpropagation(this.outputs, target);
-            return this.outputs;
-        }
+            double[]    preActivation   = Forward(input);
+            double      loss            = this.loss.Forward(preActivation, target);
 
-        public void Backpropagation(double[] activations, double[] target)
-        {
-            double[] grads_activation = new double[target.Length];
-            for (int neuron = 0; neuron < layers[layers.Length - 1].neurons.Length; neuron++)
-            {
-                grads_activation[neuron] = activations[neuron] - target[neuron];
-            }
-            for (int layer = layers.Length - 1; layer > -1; layer--)
-            {
-                grads_activation = layers[layer].Backpropagation(grads_activation, IsOutputLayer(layer));
-            }
-            foreach (Layer layer in layers)
-            {
-                layer.UpdateWeights();
-            }
-        }
-
-        private bool IsOutputLayer(int layer_number)
-        {
-            if (layer_number == layers.Length - 1) return true;
-            else return false;
-        }
-
-        public double CrossEntropyLoss(double[] outputs, double[] target)
-        {
-                  double loss = 0.0;
-            const double eps  = 1e-12; 
-
-            for (int i = 0; i < outputs.Length; i++)
-            {
-                if (target[i] > 0)
-                {
-                    loss -= Math.Log(outputs[i] + eps);
-                }
-            }
-
+            BackwardAndUpdate();
             return loss;
         }
+
+        public void BackwardAndUpdate()
+        {
+            object grads_activation = loss.Backward();
+            for (int layer = layers.Count() - 1; layer > -1; layer--)
+            {
+                grads_activation = layers[layer].Backward(grads_activation);
+            }
+            foreach (ILayer layer in layers)
+            {
+                layer.Update(this.learningRate);
+            }
+        }
+
+        public double[] Predict(double[] input)
+        {
+            double[] preActivation = Forward(input);
+            return Activations.Softmax(preActivation);
+        }
+        public NeuralNetworkModel ExportModel()
+        {
+            NeuralNetworkModel model = new NeuralNetworkModel();
+
+            foreach (ILayer layer in layers)
+            {
+                model.Layers.Add(layer.ToModel());
+            }
+
+            return model;
+        }
+
+
+        public void ClearLayers() => layers.Clear();
+        public void AddLayer(ILayer layer) => layers.Add(layer);
 
 
     }

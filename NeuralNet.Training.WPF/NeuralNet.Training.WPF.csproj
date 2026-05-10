@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeuralNet.Core\NeuralNet.Core.csproj" />
-    <ProjectReference Include="..\NeuralNet.Persistence\NeuralNet.Persistence.csproj" />
     <ProjectReference Include="..\NeuralNet.Training\NeuralNet.Training.csproj" />
   </ItemGroup>
 

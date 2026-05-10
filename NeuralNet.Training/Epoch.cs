@@ -1,5 +1,5 @@
 ﻿using NeuralNet.Core;
-using NeuralNet.Persistence;
+using NeuralNet.Core.Serialization;
 
 namespace NeuralNet.Training
 {
@@ -22,7 +22,7 @@ namespace NeuralNet.Training
                 count = 0;
                 foreach (Data data in trainings_data)
                 {
-                    epoch_loss += network.CrossEntropyLoss( network.TrainSample(data.input, data.lable), data.lable );
+                    epoch_loss +=  network.TrainSample(data.input, data.lable);
                     count++;
                     if (count % 100 == 0) progress.Report([epoch, count, list_length]);
                 }

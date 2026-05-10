@@ -1,5 +1,5 @@
 ﻿using NeuralNet.Core;
-using NeuralNet.Persistence;
+using NeuralNet.Core.Serialization;
 using System;
 
 namespace NeuralNet.Training
@@ -25,7 +25,7 @@ namespace NeuralNet.Training
 
             foreach (Data data in test_data)
             {
-                prediction  = network.Activation(data.input);
+                prediction  = network.Predict(data.input);
                 answer      = GetAnswer(prediction);
                 certainty   = prediction[answer];
 

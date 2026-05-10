@@ -1,5 +1,5 @@
 ﻿using NeuralNet.Core;
-using NeuralNet.Persistence;
+using NeuralNet.Core.Serialization;
 using System.Windows;
 
 namespace NeuralNet.Training.WPF
@@ -62,7 +62,7 @@ namespace NeuralNet.Training.WPF
                 }
                 catch (Exception e)
                 {
-                    network         = new NeuralNetwork(network_structure);
+                    network         = new NeuralNetwork();
                     network_loaded  = true;
                     ErrorMessage(e.Message, "Erstelle neues netzwerk.");
                 }
