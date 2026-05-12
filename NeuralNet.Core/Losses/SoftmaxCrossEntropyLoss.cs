@@ -2,7 +2,7 @@
 {
     public class SoftmaxCrossEntropyLoss : ILoss
     {
-        public  double[] results { get; private set; }
+        public  double[] results;
         private double[] yTrue;
 
         public double[] Backward()
@@ -22,30 +22,8 @@
         public double Forward(double[] logits, double[] yTrue)
         {
             this.yTrue      = (double[])yTrue.Clone();
-            results    = Softmax(logits);
+            results         = Activations.Softmax(logits);
             return CrossEntropyLoss(results, yTrue);
-        }
-
-
-        private double[] Softmax(double[] logits)
-        {
-            double max = logits.Max();
-            double sum = 0.0;
-            double[] exponential = new double[logits.Length];
-            double[] activation = new double[logits.Length];
-
-            for (int i = 0; i < logits.Length; i++)
-            {
-                exponential[i] = Math.Exp(logits[i] - max);
-                sum += exponential[i];
-            }
-
-            for (int i = 0; i < logits.Length; i++)
-            {
-                activation[i] = exponential[i] / sum;
-            }
-
-            return activation;
         }
 
         private double CrossEntropyLoss(double[] outputs, double[] target)
